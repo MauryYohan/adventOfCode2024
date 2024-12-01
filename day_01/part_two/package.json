@@ -1,5 +1,6 @@
 {
   "name": "day_01_part_two",
+  "type": "module",
   "version": "1.0.0",
   "main": "solution.js",
   "scripts": {
