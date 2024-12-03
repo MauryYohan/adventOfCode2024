@@ -6,6 +6,7 @@
   "main": "solution.js",
   "scripts": {
     "start": "node solution.js",
+    "gpt": "node index.js",
     "dev": "nodemon solution.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

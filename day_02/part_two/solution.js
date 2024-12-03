@@ -1,54 +1,27 @@
-import { readFileContent } from "../utils.js";
+import { readFileContent, writeFileContent } from "../utils.js";
 
-let levelincreaseOrDecrease = false;
-let levelAdjacent = false;
-
-let safetable = [];
+let isLevelincreaseOrDecrease = false;
+let isAlternativeSafe = false;
+let isLevelAdjacent = false;
+let isAlternativeAdjancentSafe = false;
 let safeCount = 0;
 
-let log = [];
+writeFileContent('output/output.txt', 'N°,  \r\n');
 
-/*
-7 6 4 2 1: Safe without removing any level.                 ()
-1 2 7 8 9: Unsafe regardless of which level is removed.     ()
-9 7 6 2 1: Unsafe regardless of which level is removed.     ()
-1 3 2 4 5: Safe by removing the second level, 3.            ()
-8 6 4 4 1: Safe by removing the third level, 4.             ()
-1 3 6 7 9: Safe without removing any level.                 ()
-*/
 
-// 1 3 2 4 5 =>  1 2 4 5
-// 8 6 4 4 1 =>  8 6 4 1
-/*
-const checkAlternate = (numbers) => {
-    let original = [...numbers];
-    let copy;
+/**
+ * 
+ * @param {*} numbers 
+ * @returns Array of arrays with all possible alternate with one level removed
+ */
+const createAlternate = (numbers) => {
+    const alternates = [];
     for (let i = 0; i < numbers.length; i++) {
-        copy = [...original];
-        console.log("Copy faite : ", copy);
-        copy.splice(i, 1);
-        console.log("Tableau modifié : ", copy);
-        if (isIncreaseOrDecrease(copy)) {
-            return copy, true;
-        }
+        const newTab = [...numbers.slice(0, i), ...numbers.slice(i + 1)];
+        alternates.push(newTab);
     }
-    return numbers, false;
-}
-*/
-
-const checkAlternate = (numbers) => {
-    let original = [...numbers];
-    let copy;
-    for (let i = 0; i < numbers.length; i++) {
-        copy = [...original];
-        console.log("Copy faite : ", copy);
-        copy.splice(i, 1);
-        console.log("Tableau modifié : ", copy);
-        if (isIncreaseOrDecrease(copy)) {
-            return { modifiedArray: copy, result: true };
-        }
-    }
-    return { modifiedArray: numbers, result: false };
+    // console.log("Alternates : ", alternates);
+    return alternates;
 }
 
 const isIncreaseOrDecrease = (numbers) => {
@@ -62,10 +35,9 @@ const isIncreaseOrDecrease = (numbers) => {
         }
     }
     if (Math.abs(constant) === (numbers.length - 1)) {
-        return { modifiedArray: numbers, result: true };
-    } else {
-        return { modifiedArray: numbers, result: checkAlternate(numbers) };
+        return true;
     }
+    return false;
 }
 
 const adjacentLevelsDifference = (numbers) => {
@@ -78,20 +50,80 @@ const adjacentLevelsDifference = (numbers) => {
     return true;
 };
 
-const levels = readFileContent('input/data-test.txt');
-
-for (const level of levels) {
-    level, levelincreaseOrDecrease = isIncreaseOrDecrease(level);
-    levelAdjacent = adjacentLevelsDifference(level);
-    if (levelincreaseOrDecrease && levelAdjacent) {
+const incrementSafeCount = (_isLevelincreaseOrDecrease, _isLevelAdjacent) => {
+    if (_isLevelincreaseOrDecrease && _isLevelAdjacent) {
+        console.log(`[${globalCount}] True !`);
         safeCount += 1;
+    } else {
+        console.log(`[${globalCount}] False !`);
     }
-    safetable.push(levelincreaseOrDecrease && levelAdjacent);
-    log.push([level, levelincreaseOrDecrease && levelAdjacent]);
 }
 
-console.log(safeCount);
+const levels = readFileContent('input/data.txt');
 
-const safeLevels = safetable.filter((level) => level === true).length;
-console.log(safeLevels);
-console.log(levels);
+console.log("Début de traitement");
+
+let globalCount = 0;
+
+for (let level of levels) {
+    globalCount++;
+    console.log("Level n° : ", globalCount);
+
+    isLevelincreaseOrDecrease = isIncreaseOrDecrease(level);
+    console.log("1.1) isLevelincreaseOrDecrease : ", isLevelincreaseOrDecrease);
+    let newLevel = [];
+    if (!isLevelincreaseOrDecrease) {
+        const alternates = createAlternate(level);
+        for (const alternate of alternates) {
+            isAlternativeSafe = isIncreaseOrDecrease(alternate);
+            if (isAlternativeSafe) {
+                isLevelincreaseOrDecrease = true;
+                newLevel = alternate;
+                break;
+            }
+        }
+    }
+    console.log("1.2) isLevelincreaseOrDecrease : ", isLevelincreaseOrDecrease);
+    
+    console.log("*) Check level : ", level);
+    console.log("*) Check newLevel : ", newLevel);
+
+    if (newLevel.length >= 1) {
+        isLevelAdjacent = adjacentLevelsDifference(newLevel);
+    } else {
+        isLevelAdjacent = adjacentLevelsDifference(level);
+    }
+
+    console.log("2.1) isLevelAdjacent : ", isLevelAdjacent);
+    
+    let anotherNewLevel = [];
+    if (!isLevelAdjacent) {    
+        const alternates = createAlternate(level);    
+        for (const alternate of alternates) {
+            isAlternativeAdjancentSafe = adjacentLevelsDifference(alternate);
+            if (isAlternativeAdjancentSafe) {
+                isLevelAdjacent = true;
+                anotherNewLevel = alternate;
+                break;
+            }
+        }
+    }
+    
+    console.log("1) isLevelincreaseOrDecrease : ", isLevelincreaseOrDecrease);
+    console.log("2) isLevelAdjacent : ", isLevelAdjacent);
+    
+    console.log("*) Check level : ", level);
+    console.log("*) Check newLevel : ", newLevel);
+    console.log("*) Check anotherNewLevel : ", anotherNewLevel);
+
+    incrementSafeCount(isLevelincreaseOrDecrease, isLevelAdjacent);
+    let content = `${globalCount}, [${level}], ${isLevelincreaseOrDecrease}, 
+    [${newLevel}], ${isAlternativeSafe}, ${isLevelAdjacent}, [${anotherNewLevel}], ${isAlternativeAdjancentSafe}, ${safeCount} \r\n`;
+    writeFileContent('output/output.txt', content);
+}
+
+
+// END
+console.log("--------------------------------------------------");
+console.log("Fin de traitement");
+console.log("Safe count : ", safeCount, " / ", levels.length);
