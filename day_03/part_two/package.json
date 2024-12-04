@@ -1,0 +1,14 @@
+{
+  "name": "part_two",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "There are two new instructions you'll need to handle:",
+  "main": "solution.js",
+  "scripts": {
+    "start": "node solution.js",
+    "dev": "nodemon solution.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
