@@ -22,6 +22,7 @@ function checkSequenceSafety(levels) {
     // Test removing one element at a time
     for (let i = 0; i < levels.length; i++) {
         const newSequence = levels.slice(0, i).concat(levels.slice(i + 1));
+        console.log(newSequence);
         if (isMonotonic(newSequence) && validDifferences(newSequence)) {
             return { safe: true, removedElement: levels[i] };
         }
@@ -37,8 +38,7 @@ console.log("Début de traitement");
 
 for (const level of levels) {
     const result = checkSequenceSafety(level).safe;
-
-    if (result) { counterSafety++; }
+    if (result === true) { counterSafety++; }
 }
 
-console.log(`Nombre de séquences sûres : ${counterSafety}`);
+console.log(`Nombre de séquences sûres : ${counterSafety} / ${levels.length}`);
